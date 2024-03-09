@@ -22,6 +22,8 @@ const moveCursor = (dx, dy) => {
   });
 };
 
+let id;
+
 const socket = net.createConnection({ host: "127.0.0.1", port: 3000 }, () => {
   console.log("connected to the server");
 
@@ -32,7 +34,7 @@ const socket = net.createConnection({ host: "127.0.0.1", port: 3000 }, () => {
     await moveCursor(0, -1);
     // clear the current line that the cursor is in
     await clearLine(0);
-    socket.write(message);
+    socket.write(`${id}-message-${message}`);
   };
 
   ask();
@@ -44,7 +46,16 @@ const socket = net.createConnection({ host: "127.0.0.1", port: 3000 }, () => {
     await moveCursor(0, -1);
     // clear line that cursor just moved into
     await clearLine(0);
-    console.log(data.toString());
+
+    if (data.toString().substring(0, 2) === "id") {
+      // when we are getting the id...
+      id = data.toString().substring(3); // grabs everything start from 4 character
+
+      console.log(`Your ID is ${id}\n`);
+    } else {
+      // when we are getting the message
+      console.log(data.toString());
+    }
 
     ask();
   });
